@@ -5,7 +5,8 @@
 //     Updated: 2013-09-02 Supported jQuery by wata
 
 (function($){
-	var touch = {}, touchTimeout, longTapDelay = 750;
+	var touch = {}, touchTimeout, longTapDelay = 750,
+		supportTouch = 'ontouchend' in document;
 
 	function parentIfText(node) {
 		return 'tagName' in node ? node : node.parentNode;
@@ -24,9 +25,12 @@
 	}
 
 	$(document).ready(function(){
-		var now, delta;
+		var now, delta,
+			touchStartEvent = supportTouch ? 'touchstart' : 'mousedown',
+			touchMoveEvent  = supportTouch ? 'touchmove'  : 'mousemove',
+			touchEndEvent   = supportTouch ? 'touchend'   : 'mouseup';
 
-		document.body.addEventListener('touchstart', function(e){
+		document.body.addEventListener(touchStartEvent, function(e){
 			now = Date.now();
 			delta = now - (touch.last || now);
 			touch.el = $(parentIfText(e.touches[0].target));
@@ -35,9 +39,10 @@
 			touch.y1 = e.touches[0].pageY;
 			if (delta > 0 && delta <= 250) touch.isDoubleTap = true;
 			touch.last = now;
+			window.setTimeout(longTap, longTapDelay);
 		}, false);
 
-		document.body.addEventListener('touchmove', function(e){
+		document.body.addEventListener(touchMoveEvent, function(e){
 			touch.x2 = e.touches[0].pageX;
 			touch.y2 = e.touches[0].pageY;
 			if (Math.abs(touch.x1 - touch.x2) > 10) {
@@ -45,7 +50,7 @@
 			}
 		}, false);
 
-		document.body.addEventListener('touchend', function(e){
+		document.body.addEventListener(touchEndEvent, function(e){
 			if (touch.isDoubleTap) {
 				touch.el.trigger('doubleTap');
 				touch = {};
