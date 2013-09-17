@@ -33,18 +33,18 @@
 		document.body.addEventListener(touchStartEvent, function(e){
 			now = Date.now();
 			delta = now - (touch.last || now);
-			touch.el = $(parentIfText(e.touches[0].target));
+			touch.el = $(parentIfText(supportTouch ? e.touches[0].target : e.target));
 			touchTimeout && window.clearTimeout(touchTimeout);
-			touch.x1 = e.touches[0].pageX;
-			touch.y1 = e.touches[0].pageY;
+			touch.x1 = supportTouch ? e.touches[0].pageX : e.pageX;
+			touch.y1 = supportTouch ? e.touches[0].pageY : e.pageY;
 			if (delta > 0 && delta <= 250) touch.isDoubleTap = true;
 			touch.last = now;
 			window.setTimeout(longTap, longTapDelay);
 		}, false);
 
 		document.body.addEventListener(touchMoveEvent, function(e){
-			touch.x2 = e.touches[0].pageX;
-			touch.y2 = e.touches[0].pageY;
+			touch.x2 = supportTouch ? e.touches[0].pageX : e.pageX;
+			touch.y2 = supportTouch ? e.touches[0].pageY : e.pageY;
 			if (Math.abs(touch.x1 - touch.x2) > 10) {
 				e.preventDefault();
 			}
